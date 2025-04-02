@@ -6,10 +6,10 @@ import {errorMiddleware} from "./error/error.js";
 import reservationRouter from "./routes/reservationRoute.js";
 
 const app = express()
-dotenv.config({ path: "./config/config.env" });
+dotenv.config(); // Changed to use root .env file
 
 app.use(cors({
-    origin: [process.env.FRONTEND_URL],  // jisko backend se connect karna hai(frontend)
+    origin: [process.env.FRONTEND_URL],  // Added deployed frontend URL
     methods: ["POST"],
     credentials: true,
 }));
@@ -19,11 +19,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1/reservation", reservationRouter); // api ka prefix hai jo humne reservationRoute.js me define kiya hai
 
 dbConnection(); // database connect
-
-
-
-
-
 
 app.use(errorMiddleware); // error middleware
 
