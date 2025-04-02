@@ -1,27 +1,48 @@
 import express from "express";
-import cors from "cors"; //it is used to connect the frontend and backend as they are runningh on different ports
+import cors from "cors";
 import dotenv from "dotenv";
 import {dbConnection} from "./database/dbConnection.js";
 import {errorMiddleware} from "./error/error.js"; 
 import reservationRouter from "./routes/reservationRoute.js";
 
 const app = express()
-dotenv.config(); // Changed to use root .env file
+dotenv.config();
 
-// app.use(cors({
-//     origin: [process.env.FRONTEND_URL],  // Added deployed frontend URL
-//     methods: ["POST"],
-//     credentials: true,
-// }));
+// Set up CORS for both development and production
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "https://restaurant-frontend-five-gilt.vercel.app",
+  "http://localhost:5173"
+];
 
-app.use(cors({ origin: "https://restaurant-frontend-five-gilt.vercel.app" })); // Added deployed frontend URL
+app.use(cors({
+    origin: function(origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+}));
+
+// Handle preflight requests
+app.options('*', cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/api/v1/reservation", reservationRouter); // api ka prefix hai jo humne reservationRoute.js me define kiya hai
+app.use("/api/v1/reservation", reservationRouter);
 
-dbConnection(); // database connect
+// Health check endpoint for Vercel
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', message: 'Server is running' });
+});
 
-app.use(errorMiddleware); // error middleware
+dbConnection();
+
+app.use(errorMiddleware);
 
 export default app;
