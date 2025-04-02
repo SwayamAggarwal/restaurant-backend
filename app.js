@@ -8,11 +8,13 @@ import reservationRouter from "./routes/reservationRoute.js";
 const app = express()
 dotenv.config(); // Changed to use root .env file
 
-app.use(cors({
-    origin: [process.env.FRONTEND_URL],  // Added deployed frontend URL
-    methods: ["POST"],
-    credentials: true,
-}));
+// app.use(cors({
+//     origin: [process.env.FRONTEND_URL],  // Added deployed frontend URL
+//     methods: ["POST"],
+//     credentials: true,
+// }));
+
+app.use(cors({ origin: "https://restaurant-frontend-five-gilt.vercel.app" })); // Added deployed frontend URL
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
